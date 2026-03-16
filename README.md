@@ -1,6 +1,6 @@
 # Nuggets
-
 A personal AI assistant that remembers. Nuggets combines holographic memory with a multi-channel messaging gateway so your AI actually learns from conversations — facts recalled often get promoted to permanent memory, and everything persists across restarts.
+![Logo](https://github.com/NeoVertex1/nuggets/blob/d180ee6df491d2db741eed0bf254ba917a4c12e2/images/Gemini_Generated_Image_mgaktymgaktymgak.png)
 
 ## Why Nuggets?
 
