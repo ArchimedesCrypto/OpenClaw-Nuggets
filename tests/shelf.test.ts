@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { NuggetShelf } from "../src/nuggets/shelf.js";
@@ -15,6 +15,11 @@ afterEach(() => {
 });
 
 describe("NuggetShelf", () => {
+  it("uses default constructor options", () => {
+    const shelf = new NuggetShelf();
+    expect(typeof shelf.saveDir).toBe("string");
+    expect(shelf.autoSave).toBe(true);
+  });
   it("creates and retrieves nuggets", () => {
     const shelf = new NuggetShelf({ saveDir: tmpDir, autoSave: false });
     const n = shelf.create("test", { D: 512, banks: 2 });
@@ -49,6 +54,11 @@ describe("NuggetShelf", () => {
     expect(shelf.size).toBe(0);
   });
 
+  it("throws on remove missing", () => {
+    const shelf = new NuggetShelf({ saveDir: tmpDir, autoSave: false });
+    expect(() => shelf.remove("missing")).toThrow("not found");
+  });
+
   it("remembers and recalls across nuggets", () => {
     const shelf = new NuggetShelf({ saveDir: tmpDir, autoSave: false });
     shelf.create("prefs", { D: 512, banks: 2 });
@@ -70,6 +80,12 @@ describe("NuggetShelf", () => {
     expect(r2.nugget_name).toBe("facts");
   });
 
+  it("loadAll no-ops for missing saveDir", () => {
+    const shelf = new NuggetShelf({ saveDir: join(tmpDir, "missing"), autoSave: false });
+    shelf.loadAll();
+    expect(shelf.size).toBe(0);
+  });
+
   it("saves and loads all nuggets", () => {
     const shelf1 = new NuggetShelf({ saveDir: tmpDir, autoSave: true });
     shelf1.create("a", { D: 512, banks: 2 });
@@ -77,6 +93,10 @@ describe("NuggetShelf", () => {
     shelf1.remember("a", "k1", "v1");
     shelf1.remember("b", "k2", "v2");
     shelf1.saveAll();
+
+    // non-matching extension should be skipped, corrupt nugget should be caught
+    writeFileSync(join(tmpDir, "ignore.txt"), "noop");
+    writeFileSync(join(tmpDir, "bad.nugget.json"), "{not-json");
 
     const shelf2 = new NuggetShelf({ saveDir: tmpDir, autoSave: false });
     shelf2.loadAll();
@@ -113,5 +133,13 @@ describe("NuggetShelf", () => {
     const r = shelf.recall("color");
     expect(r.found).toBe(true);
     expect(["red", "blue"]).toContain(r.answer);
+  });
+
+  it("forgets through pass-through API", () => {
+    const shelf = new NuggetShelf({ saveDir: tmpDir, autoSave: false });
+    shelf.create("x", { D: 512, banks: 2 });
+    shelf.remember("x", "k", "v");
+    expect(shelf.forget("x", "k")).toBe(true);
+    expect(() => shelf.forget("missing", "k")).toThrow("not found");
   });
 });

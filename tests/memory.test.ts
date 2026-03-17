@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { Nugget } from "../src/nuggets/memory.js";
@@ -138,5 +138,48 @@ describe("Nugget", () => {
     n.remember("key", "");
     n.remember("  ", "value");
     expect(n.facts()).toHaveLength(0);
+  });
+
+  it("handles internal rebuild on empty fact set", () => {
+    const n = new Nugget({ name: "empty-rebuild", D: 512, banks: 2, autoSave: false });
+    // exercise empty branch in _rebuild
+    (n as unknown as { _rebuild: () => void })._rebuild();
+    expect(n.facts()).toHaveLength(0);
+  });
+
+  it("loads facts when last_hit_session is missing", () => {
+    const p = join(tmpDir, "legacy.nugget.json");
+    writeFileSync(
+      p,
+      JSON.stringify({
+        version: 3,
+        name: "legacy",
+        D: 512,
+        banks: 2,
+        ensembles: 1,
+        max_facts: 0,
+        facts: [{ key: "k", value: "v", hits: 1 }],
+        config: { sharpen_p: 1, corvacs_a: 0, temp_T: 0.9, orth_iters: 1 },
+      }),
+    );
+
+    const n = Nugget.load(p, { autoSave: false });
+    expect(n.recall("k").answer).toBe("v");
+  });
+
+  it("exercises fuzzy resolver edge branches", () => {
+    const n = new Nugget({ name: "fuzzy-edges", D: 512, banks: 2, autoSave: false });
+    n.remember("abc", "value");
+
+    // empty query currently matches via substring behavior
+    expect(n.recall("").found).toBe(true);
+
+    // force both-empty comparison branch in sequence matcher
+    const hacked = n as unknown as {
+      _tagToPos: Map<string, number>;
+      _resolveTag: (q: string) => string;
+    };
+    hacked._tagToPos = new Map([["", 0]]);
+    expect(hacked._resolveTag("")).toBe("");
   });
 });

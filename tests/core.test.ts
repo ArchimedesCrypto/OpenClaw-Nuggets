@@ -101,6 +101,11 @@ describe("bind/unbind", () => {
 });
 
 describe("orthogonalize", () => {
+  it("returns empty input unchanged", () => {
+    const keys: ComplexVector[] = [];
+    const result = orthogonalize(keys, 1, 0.4);
+    expect(result).toEqual([]);
+  });
   it("reduces correlation between keys", () => {
     const rng = mulberry32(7);
     const keys = makeVocabKeys(5, 128, rng);
@@ -154,6 +159,17 @@ describe("corvacsLite", () => {
     const result = corvacsLite(v, 0);
     expect(result).toBe(v);
   });
+
+  it("applies saturation when a>0", () => {
+    const v: ComplexVector = {
+      re: new Float64Array([3, 4]),
+      im: new Float64Array([0, 0]),
+    };
+    const result = corvacsLite(v, 1.5);
+    expect(result).not.toBe(v);
+    expect(result.re[0]).toBeLessThan(v.re[0]);
+    expect(result.re[1]).toBeLessThan(v.re[1]);
+  });
 });
 
 describe("softmaxTemp", () => {
@@ -178,6 +194,10 @@ describe("softmaxTemp", () => {
 });
 
 describe("stackAndUnitNorm", () => {
+  it("returns empty array for empty input", () => {
+    expect(stackAndUnitNorm([])).toEqual([]);
+  });
+
   it("produces unit-norm 2D vectors", () => {
     const rng = mulberry32(0);
     const keys = makeVocabKeys(3, 32, rng);
