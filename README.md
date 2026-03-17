@@ -10,6 +10,19 @@ It is designed as a drop-in memory layer for agent systems (especially OpenClaw)
 
 ---
 
+## Upstream / lineage
+
+This project is adapted from the original Nuggets repository:
+
+- Upstream: https://github.com/NeoVertex1/nuggets
+- This fork: https://github.com/ArchimedesCrypto/OpenClaw-Nuggets
+
+Git remotes are configured as:
+- `origin` → OpenClaw-Nuggets
+- `upstream` → NeoVertex1/nuggets
+
+---
+
 ## Why this exists
 
 Most agents either:
