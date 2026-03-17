@@ -14,6 +14,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": ["src/nuggets/**/*", "src/prove-hrr.ts"],
   "exclude": ["node_modules", "dist"]
 }
