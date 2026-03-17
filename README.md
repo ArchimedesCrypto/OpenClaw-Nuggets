@@ -25,6 +25,22 @@ npm run test
 npm run prove:hrr
 ```
 
+## OpenClaw integration
+
+A native OpenClaw adapter is included:
+
+- `src/openclaw/config.ts`
+- `src/openclaw/hrr-memory.ts`
+- `src/hrr-cli.ts`
+
+See `OPENCLAW_INTEGRATION.md` for plug-in steps and env flags.
+
+Quick verify:
+
+```bash
+npm run prove:openclaw
+```
+
 ## HRR proof (completion criterion)
 
 `npm run prove:hrr` runs an end-to-end proof that:
