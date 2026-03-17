@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/prove-hrr.ts",
+    "hrr": "tsx src/hrr-cli.ts",
     "prove:hrr": "tsx src/prove-hrr.ts",
+    "prove:openclaw": "tsx src/hrr-cli.ts prove",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

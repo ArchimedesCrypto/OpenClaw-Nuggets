@@ -14,6 +14,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/nuggets/**/*", "src/prove-hrr.ts"],
+  "include": ["src/nuggets/**/*", "src/openclaw/**/*", "src/prove-hrr.ts", "src/hrr-cli.ts"],
   "exclude": ["node_modules", "dist"]
 }
