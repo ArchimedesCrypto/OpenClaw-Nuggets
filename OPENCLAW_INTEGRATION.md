@@ -49,7 +49,38 @@ Recommended order:
 
 This gives you a fast self-improving L1 memory layer.
 
-## 5) Validate on any machine
+## 5) Capture full chat turns into HRR
+
+```ts
+import { OpenClawChatMemory } from "./openclaw/chat-memory.js";
+
+const chatMemory = new OpenClawChatMemory(hrr);
+chatMemory.ingestTurn({
+  role: "user",
+  text: "I will finish the release notes today",
+  timestamp: new Date().toISOString(),
+}, sessionId);
+```
+
+What gets stored:
+- `chat:<session>:<timestamp>:<role>` => full turn text
+- `chat:last:<session>:<role>` => latest role-specific context
+- `commitment:<session>:...` => extracted commitment/todo-like sentences
+
+## 6) Read HRR on heartbeats
+
+```ts
+import { heartbeatRecall } from "./openclaw/heartbeat-recall.js";
+
+const hb = heartbeatRecall(hrr, sessionId);
+if (hb.status === "ALERT") {
+  // send proactive message with hb.alerts
+} else {
+  // HEARTBEAT_OK
+}
+```
+
+## 7) Validate on any machine
 
 ```bash
 npm run prove:openclaw
@@ -61,7 +92,7 @@ Expected output:
 ✅ HRR prove passed
 ```
 
-## 6) Optional bootstrapping from MEMORY.md
+## 8) Optional bootstrapping from MEMORY.md
 
 ```bash
 npm run hrr -- import-memory /path/to/MEMORY.md

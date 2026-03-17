@@ -45,7 +45,9 @@ with persistent storage (`*.nugget.json`) and testable reload behavior.
 - Fuzzy key resolution for recall
 - Multi-nugget management via `NuggetShelf`
 - OpenClaw adapter (`OpenClawHrrMemory`)
-- CLI for ops, import, and verification
+- Chat ingestion adapter (`OpenClawChatMemory`) to store turns + commitments
+- Heartbeat recall (`heartbeatRecall`) to read HRR on heartbeat cycles
+- CLI for ops, import, ingestion, heartbeat checks, and verification
 - Full test coverage for core + integration paths
 
 ---
@@ -139,6 +141,9 @@ npm run hrr -- remember "assistant-name" "OpenClaw Nuggets"
 npm run hrr -- recall "assistant-name"
 npm run hrr -- forget "assistant-name"
 npm run hrr -- import-memory /path/to/MEMORY.md
+npm run hrr -- ingest-turn user "I will finish docs today" session-1
+npm run hrr -- ingest-file ./chat.json session-1
+npm run hrr -- heartbeat session-1
 npm run hrr -- prove
 ```
 
@@ -147,6 +152,10 @@ npm run hrr -- prove
 ## OpenClaw integration
 
 Use `OpenClawHrrMemory` in your runtime memory flow.
+
+For full chat capture + heartbeat reads, use:
+- `OpenClawChatMemory` for turn ingestion
+- `heartbeatRecall` during heartbeat checks
 
 ```ts
 import { OpenClawHrrMemory } from "./openclaw/hrr-memory.js";

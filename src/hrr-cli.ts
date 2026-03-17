@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { OpenClawHrrMemory } from "./openclaw/hrr-memory.js";
+import { OpenClawChatMemory, type ChatTurn } from "./openclaw/chat-memory.js";
+import { heartbeatRecall } from "./openclaw/heartbeat-recall.js";
 
 function usage(): never {
   console.log(`OpenClaw Nuggets HRR CLI
@@ -11,6 +14,9 @@ Usage:
   npm run hrr -- recall <query> [sessionId]
   npm run hrr -- forget <key>
   npm run hrr -- import-memory <path-to-MEMORY.md>
+  npm run hrr -- ingest-turn <role:user|assistant|system> <text> [sessionId]
+  npm run hrr -- ingest-file <path-to-json-array> [sessionId]
+  npm run hrr -- heartbeat [sessionId]
   npm run hrr -- prove
 `);
   process.exit(1);
@@ -52,6 +58,31 @@ switch (cmd) {
     if (!p) usage();
     const count = hrr.importMemoryMarkdown(resolve(p));
     console.log(`imported ${count} facts`);
+    break;
+  }
+  case "ingest-turn": {
+    const [role, ...rest] = args;
+    if (!role || rest.length === 0) usage();
+    const sessionId = rest.length > 1 ? rest[rest.length - 1] : "global";
+    const text = rest.length > 1 ? rest.slice(0, -1).join(" ") : rest.join(" ");
+    const chat = new OpenClawChatMemory(hrr);
+    const keys = chat.ingestTurn({ role: role as ChatTurn["role"], text }, sessionId);
+    console.log(JSON.stringify({ ingested: keys.length, keys }, null, 2));
+    break;
+  }
+  case "ingest-file": {
+    const [p, sessionId] = args;
+    if (!p) usage();
+    const raw = JSON.parse(readFileSync(resolve(p), "utf-8")) as ChatTurn[];
+    const chat = new OpenClawChatMemory(hrr);
+    const keys = chat.ingestBatch(raw, sessionId ?? "global");
+    console.log(JSON.stringify({ ingested: keys.length }, null, 2));
+    break;
+  }
+  case "heartbeat": {
+    const [sessionId] = args;
+    const out = heartbeatRecall(hrr, sessionId ?? "global");
+    console.log(JSON.stringify(out, null, 2));
     break;
   }
   case "prove": {

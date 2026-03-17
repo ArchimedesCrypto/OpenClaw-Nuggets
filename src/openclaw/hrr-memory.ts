@@ -51,6 +51,10 @@ export class OpenClawHrrMemory {
     return this.nugget.status();
   }
 
+  facts() {
+    return this.nugget.facts();
+  }
+
   save(): string {
     return this.nugget.save();
   }
