@@ -87,7 +87,7 @@ export class PiRpc extends EventEmitter {
   async promptAndWait(
     message: string,
     images?: string[],
-    idleTimeout = 300_000, // 5 min of silence = timeout (not total time)
+    idleTimeout = 43_200_000, // 12 hours of silence = timeout (not total time)
   ): Promise<PromptResult> {
     if (!this.alive) throw new Error("Pi process not running");
 

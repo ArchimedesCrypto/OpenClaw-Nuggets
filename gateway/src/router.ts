@@ -78,11 +78,6 @@ async function handleMessage(
     log.info({ jid, responseLen: response.length }, "Reply sent");
   } catch (err) {
     log.error({ jid, err }, "Error handling message");
-    try {
-      await send(jid, "Sorry, something went wrong. Please try again.");
-    } catch (sendErr) {
-      log.error({ jid, sendErr }, "Failed to send error message");
-    }
   } finally {
     pool.markIdle(jid);
   }
